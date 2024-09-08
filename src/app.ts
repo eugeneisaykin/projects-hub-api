@@ -1,7 +1,7 @@
 import "module-alias/register";
 
 import config from "@/config";
-import createConnectionDB from "@/service/objection.service";
+import createConnectionDB from "@/services/objection.service";
 import express from "express";
 
 createConnectionDB(config.database);
