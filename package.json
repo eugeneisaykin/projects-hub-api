@@ -4,6 +4,13 @@
 	"description": "Backend service for a project management application",
 	"main": "src/app.ts",
 	"scripts": {
+		"migrate": "npx knex migrate:latest --knexfile knexfile.ts",
+		"migrate:make": "npx knex migrate:make --knexfile knexfile.ts",
+		"migrate:down": "npx knex migrate:down --knexfile knexfile.ts",
+		"migrate:rollback": "npx knex migrate:rollback --knexfile knexfile.ts",
+		"migrate:rollback:all": "npx knex migrate:rollback --all --knexfile knexfile.ts",
+		"seed": "npx knex seed:run --knexfile knexfile.ts",
+		"seed:make": "npx knex seed:make dev --knexfile knexfile.ts",
 		"dev": "tsx watch src/app.ts",
 		"start": "tsx src/app.ts"
 	},
@@ -21,6 +28,7 @@
 		"@types/express": "^4.17.21",
 		"@types/knex": "^0.15.2",
 		"@types/module-alias": "^2.0.4",
+		"ts-node": "^10.9.2",
 		"tsx": "^4.19.0",
 		"typescript": "^5.5.4"
 	},
