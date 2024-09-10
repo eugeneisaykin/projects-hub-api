@@ -29,6 +29,6 @@ export default {
 			directory: "./src/seeds",
 			extension: "ts",
 		},
-		...knexSnakeCaseMappers,
+		...knexSnakeCaseMappers(),
 	},
 };

@@ -1,12 +1,24 @@
-import { Model } from "objection";
+import { Model, snakeCaseMappers } from "objection";
 import RoleModel from "./roles.model";
 import SessionModel from "./sessions.model";
 
 export default class UserModel extends Model {
-	date_change!: Date;
+	id!: number;
+	username!: string;
+	firstName!: string;
+	lastName!: string;
+	email!: string;
+	roleId!: number;
+	password!: string;
+	dateAdded!: Date;
+	dateChange!: Date;
 
 	static get tableName() {
 		return "users";
+	}
+
+	static get columnNameMappers() {
+		return snakeCaseMappers();
 	}
 
 	static get relationMappings() {
@@ -15,7 +27,7 @@ export default class UserModel extends Model {
 				relation: Model.BelongsToOneRelation,
 				modelClass: RoleModel,
 				join: {
-					from: "users.role_id",
+					from: "users.roleId",
 					to: "roles.id",
 				},
 			},
@@ -24,7 +36,7 @@ export default class UserModel extends Model {
 				modelClass: SessionModel,
 				join: {
 					from: "users.id",
-					to: "sessions.user_id",
+					to: "sessions.userId",
 				},
 			},
 		};
@@ -33,12 +45,12 @@ export default class UserModel extends Model {
 	$formatJson(json: any) {
 		json = super.$formatJson(json);
 		delete json.password;
-		delete json.date_added;
-		delete json.date_change;
+		delete json.dateAdded;
+		delete json.dateChange;
 		return json;
 	}
 
 	async $beforeUpdate() {
-		this.date_change = new Date();
+		this.dateChange = new Date();
 	}
 }

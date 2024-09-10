@@ -1,11 +1,21 @@
-import { Model } from "objection";
+import { Model, snakeCaseMappers } from "objection";
 import UserModel from "./users.model";
 
 export default class SessionModel extends Model {
-	date_change!: Date;
+	id!: string;
+	expiresAt!: Date;
+	userAgent!: JSON;
+	ipAddress!: number;
+	userId!: number;
+	dateAdded!: Date;
+	dateChange!: Date;
 
 	static get tableName() {
 		return "sessions";
+	}
+
+	static get columnNameMappers() {
+		return snakeCaseMappers();
 	}
 
 	static get relationMappings() {
@@ -14,7 +24,7 @@ export default class SessionModel extends Model {
 				relation: Model.BelongsToOneRelation,
 				modelClass: UserModel,
 				join: {
-					from: "sessions.user_id",
+					from: "sessions.userId",
 					to: "users.id",
 				},
 			},
@@ -22,6 +32,6 @@ export default class SessionModel extends Model {
 	}
 
 	async $beforeUpdate() {
-		this.date_change = new Date();
+		this.dateChange = new Date();
 	}
 }

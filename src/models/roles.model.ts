@@ -1,11 +1,19 @@
-import { Model } from "objection";
+import { Model, snakeCaseMappers } from "objection";
 import UserModel from "./users.model";
 
 export default class RoleModel extends Model {
-	date_change!: Date;
+	id!: number;
+	name!: string;
+	description!: string;
+	dateAdded!: Date;
+	dateChange!: Date;
 
 	static get tableName() {
 		return "roles";
+	}
+
+	static get columnNameMappers() {
+		return snakeCaseMappers();
 	}
 
 	static get relationMappings() {
@@ -15,13 +23,20 @@ export default class RoleModel extends Model {
 				modelClass: UserModel,
 				join: {
 					from: "roles.id",
-					to: "users.role_id",
+					to: "users.roleId",
 				},
 			},
 		};
 	}
 
+	$formatJson(json: any) {
+		json = super.$formatJson(json);
+		delete json.dateAdded;
+		delete json.dateChange;
+		return json;
+	}
+
 	async $beforeUpdate() {
-		this.date_change = new Date();
+		this.dateChange = new Date();
 	}
 }
