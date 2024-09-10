@@ -14,5 +14,6 @@ export default {
 	},
 	auth: {
 		saltRounds: parseInt(process.env.BCRYPT_SALT_ROUNDS || "10"),
+		token_secret_key: process.env.TOKEN_SECRET_KEY || "",
 	},
 };

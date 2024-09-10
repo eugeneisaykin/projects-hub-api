@@ -1,4 +1,5 @@
 import CustomError from "@/errors/customError";
+import { createSessionAndGetTokenService } from "@/services/sessions.service";
 import { createUserService } from "@/services/users.service";
 import { userSchema } from "@/validations/users.validation";
 import { NextFunction, Request, Response } from "express";
@@ -21,9 +22,15 @@ export const createUserController = async (
 			userAgent: parser(req.headers["user-agent"]),
 		};
 
-		const userInfo = await createUserService(value, clientInfo);
+		const userInfo = await createUserService(value);
 
-		res.status(201).json({ success: true, message: "User created", userInfo });
+		const sessionToken = await createSessionAndGetTokenService(
+			userInfo,
+			clientInfo
+		);
+		res
+			.status(201)
+			.json({ success: true, message: "User created", userInfo, sessionToken });
 	} catch (error: any) {
 		console.log(error);
 		next(error);

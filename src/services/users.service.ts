@@ -3,7 +3,6 @@ import CustomError from "@/errors/customError";
 import RoleModel from "@/models/roles.model";
 import UserModel from "@/models/users.model";
 import bcrypt from "bcrypt";
-import { IResult } from "ua-parser-js";
 
 let roleCache: Record<string, number> = {};
 
@@ -16,15 +15,7 @@ interface UserInfo {
 	role: string;
 }
 
-interface ClientInfo {
-	ipAddress: string | undefined;
-	userAgent: IResult;
-}
-
-export const createUserService = async (
-	userInfo: UserInfo,
-	clientInfo: ClientInfo
-) => {
+export const createUserService = async (userInfo: UserInfo) => {
 	const { username, firstName, lastName, email, role, password } = userInfo;
 
 	await getUserIsExist(email, username);
