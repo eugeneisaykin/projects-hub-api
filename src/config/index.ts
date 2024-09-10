@@ -12,4 +12,7 @@ export default {
 			host: process.env.DB_HOST || "127.0.0.1",
 		},
 	},
+	auth: {
+		saltRounds: parseInt(process.env.BCRYPT_SALT_ROUNDS || "10"),
+	},
 };
