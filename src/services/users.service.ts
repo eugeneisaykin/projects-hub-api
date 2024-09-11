@@ -1,10 +1,8 @@
 import config from "@/config";
 import CustomError from "@/errors/customError";
-import RoleModel from "@/models/roles.model";
 import UserModel from "@/models/users.model";
 import bcrypt from "bcrypt";
-
-let roleCache: Record<string, number> = {};
+import { getRoleIdByName, getRoleNameById } from "./roles.service";
 
 interface UserInfo {
 	username: string;
@@ -18,10 +16,16 @@ interface UserInfo {
 export const createUserService = async (userInfo: UserInfo) => {
 	const { username, firstName, lastName, email, role, password } = userInfo;
 
-	await getUserIsExist(email, username);
+	const userDB = await getUserFromDB(email, username);
+	if (userDB) {
+		throw new CustomError(
+			409,
+			"A user with the same email or username already exists"
+		);
+	}
 
 	const hashPassword = await getHashPassword(password);
-	const roleId = await getRoleIdByName(role);
+	const roleId = +(await getRoleIdByName(role));
 
 	const user = await UserModel.query()
 		.insertAndFetch({
@@ -35,13 +39,23 @@ export const createUserService = async (userInfo: UserInfo) => {
 		.onError(e => {
 			throw new CustomError(500, e.message);
 		});
+	return formatUserResponse(user, role);
+};
 
-	const result = user.$omitFromJson(["roleId"]).toJSON();
+export const authUserService = async (email: string, password: string) => {
+	const userDB = await getUserFromDB(email);
+	if (!userDB) {
+		throw new CustomError(401, "Invalid email or password");
+	}
 
-	return {
-		...result,
-		role,
-	};
+	const verifyPassword = await getDecryptPassword(password, userDB.password);
+	if (!verifyPassword) {
+		throw new CustomError(401, "Invalid email or password");
+	}
+
+	const role = String(await getRoleNameById(userDB.roleId));
+
+	return formatUserResponse(userDB, role);
 };
 
 export const getHashPassword = async (password: string) => {
@@ -63,25 +77,14 @@ export const getDecryptPassword = async (
 	}
 };
 
-export const getUserIsExist = async (email: string, username: string) => {
-	const existingUser = await UserModel.query()
-		.where({ email })
-		.orWhere({ username })
-		.first();
-	if (existingUser) {
-		throw new CustomError(
-			409,
-			"A user with the same email or username already exists"
-		);
-	}
+export const getUserFromDB = async (email: string, username: string = "") => {
+	return await UserModel.query().where({ email }).orWhere({ username }).first();
 };
 
-export const getRoleIdByName = async (roleName: string) => {
-	if (roleCache[roleName]) return roleCache[roleName];
-
-	const role = await RoleModel.query().select().where("name", roleName).first();
-	if (!role) throw new CustomError(404, "Role not found");
-
-	roleCache[roleName] = role.id;
-	return role.id;
+const formatUserResponse = (user: any, role: string) => {
+	const result = user.$omitFromJson(["roleId"]).toJSON();
+	return {
+		...result,
+		role,
+	};
 };
