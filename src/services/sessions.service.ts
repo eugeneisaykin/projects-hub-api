@@ -1,6 +1,6 @@
 import config from "@/config";
 import CustomError from "@/errors/customError";
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import { IResult } from "ua-parser-js";
 import lucia from "./lucia.service";
 
@@ -12,6 +12,7 @@ interface User {
 	email: string;
 	role: string;
 }
+
 interface SessionDTO {
 	id: string;
 	userId: string;
@@ -41,12 +42,32 @@ export const createSessionAndGetTokenService = async (
 	return tokenSession;
 };
 
-const generateTokensService = (payload: SessionDTO) => {
+export const generateTokensService = (payload: SessionDTO) => {
 	try {
 		return jwt.sign(payload, config.auth.token_secret_key, {
 			expiresIn: "30m",
 		});
 	} catch (error) {
 		throw new CustomError(500, "Error generate token");
+	}
+};
+
+export const verifyTokenAndGetSessionService = async (token: string) => {
+	try {
+		const decoded = jwt.verify(
+			token,
+			config.auth.token_secret_key
+		) as JwtPayload;
+
+		if (!decoded)
+			throw new CustomError(401, "An unexpected error has occurred");
+
+		const { session, user } = await lucia.validateSession(decoded.id);
+
+		if (!session || !user) throw new CustomError(500, "Error verify token");
+
+		return { session, user };
+	} catch (error) {
+		throw new CustomError(500, "Error verify token");
 	}
 };
