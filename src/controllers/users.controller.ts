@@ -1,4 +1,5 @@
 import CustomError from "@/errors/customError";
+import { getRoleNameById } from "@/services/roles.service";
 import { createSessionAndGetTokenService } from "@/services/sessions.service";
 import { authUserService, createUserService } from "@/services/users.service";
 import { userSchema } from "@/validations/users.validation";
@@ -11,6 +12,14 @@ export const createUserController = async (
 	next: NextFunction
 ): Promise<void> => {
 	try {
+		const isAdminRole = req.body.role === "admin";
+		const isUserAdmin =
+			req.user && (await getRoleNameById(req.user.roleId)) === "admin";
+
+		if ((!req.user || !req.session) && isAdminRole && !isUserAdmin) {
+			throw new CustomError(403, "Forbidden");
+		}
+
 		const { error, value } = userSchema.validate(req.body);
 		if (error) {
 			const errorMessages = error.details.map(detail => detail.message);
@@ -24,13 +33,22 @@ export const createUserController = async (
 
 		const userInfo = await createUserService(value);
 
-		const sessionToken = await createSessionAndGetTokenService(
-			userInfo,
-			clientInfo
-		);
-		res
-			.status(201)
-			.json({ success: true, message: "User created", userInfo, sessionToken });
+		if (userInfo.role === "admin") {
+			res
+				.status(201)
+				.json({ success: true, message: "Admin created", userInfo });
+		} else {
+			const sessionToken = await createSessionAndGetTokenService(
+				userInfo,
+				clientInfo
+			);
+			res.status(201).json({
+				success: true,
+				message: "User created",
+				userInfo,
+				sessionToken,
+			});
+		}
 	} catch (error: any) {
 		console.log(error);
 		next(error);

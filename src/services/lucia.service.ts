@@ -20,6 +20,7 @@ const lucia = new Lucia(adapter, {
 		return {
 			username: attributes.username,
 			email: attributes.email,
+			roleId: attributes.role_id,
 		};
 	},
 	getSessionAttributes: attributes => {
@@ -47,6 +48,7 @@ interface DatabaseSessionAttributes {
 interface DatabaseUserAttributes {
 	username: string;
 	email: string;
+	role_id: number;
 }
 
 export default lucia;
