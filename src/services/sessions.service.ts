@@ -71,3 +71,19 @@ export const verifyTokenAndGetSessionService = async (token: string) => {
 		throw new CustomError(500, "Error verify token");
 	}
 };
+
+export const deleteSessionsService = async (
+	logoutAllDevices: boolean,
+	userId: string,
+	sessionId: string
+) => {
+	try {
+		if (logoutAllDevices) {
+			await lucia.invalidateUserSessions(userId);
+		} else {
+			await lucia.invalidateSession(sessionId);
+		}
+	} catch (error: any) {
+		throw new CustomError(500, "Error logout");
+	}
+};

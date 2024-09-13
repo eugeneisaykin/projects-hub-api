@@ -1,6 +1,9 @@
 import CustomError from "@/errors/customError";
 import { getRoleNameById } from "@/services/roles.service";
-import { createSessionAndGetTokenService } from "@/services/sessions.service";
+import {
+	createSessionAndGetTokenService,
+	deleteSessionsService,
+} from "@/services/sessions.service";
 import { authUserService, createUserService } from "@/services/users.service";
 import { userSchema } from "@/validations/users.validation";
 import { NextFunction, Request, Response } from "express";
@@ -76,6 +79,25 @@ export const authUserController = async (
 		res
 			.status(201)
 			.json({ success: true, message: "User auth", userInfo, sessionToken });
+	} catch (error: any) {
+		console.log(error);
+		next(error);
+	}
+};
+
+export const logoutUserController = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+): Promise<void> => {
+	try {
+		if (!req.user || !req.session) {
+			throw new CustomError(403, "Forbidden");
+		}
+		const { logoutAllDevices = false } = req.body;
+
+		await deleteSessionsService(logoutAllDevices, req.user.id, req.session.id);
+		res.status(200).json({ success: true, message: "Successful Logout" });
 	} catch (error: any) {
 		console.log(error);
 		next(error);
