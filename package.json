@@ -27,6 +27,7 @@
 		"lucia": "^3.2.0",
 		"module-alias": "^2.2.3",
 		"mysql2": "^3.11.0",
+		"node-cron": "^3.0.3",
 		"objection": "^3.1.4",
 		"ua-parser-js": "^1.0.38"
 	},
@@ -37,6 +38,7 @@
 		"@types/jsonwebtoken": "^9.0.6",
 		"@types/knex": "^0.15.2",
 		"@types/module-alias": "^2.0.4",
+		"@types/node-cron": "^3.0.11",
 		"@types/ua-parser-js": "^0.7.39",
 		"ts-node": "^10.9.2",
 		"tsx": "^4.19.0",
