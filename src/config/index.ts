@@ -15,5 +15,11 @@ export default {
 	auth: {
 		saltRounds: parseInt(process.env.BCRYPT_SALT_ROUNDS || "10"),
 		token_secret_key: process.env.TOKEN_SECRET_KEY || "",
+		token_lifetime: process.env.TOKEN_LIFETIME || "2h",
+		session_lifetime_hours: parseInt(process.env.SESSION_LIFETIME_HOURS || "2"),
+	},
+	cronSchedule: {
+		cleanupSessionInterval:
+			process.env.CRON_CLEANUP_SESSION_INTERVAL || "0 * * * *",
 	},
 };

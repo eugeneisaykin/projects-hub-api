@@ -14,7 +14,7 @@ app.use(express.json());
 app.use("/api", routes);
 app.use(errorHandler);
 
-startSessionCleanupCron("0 * * * *");
+startSessionCleanupCron(config.cronSchedule.cleanupSessionInterval);
 
 const PORT = config.port;
 

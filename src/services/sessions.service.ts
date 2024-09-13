@@ -45,7 +45,7 @@ export const createSessionAndGetTokenService = async (
 export const generateTokensService = (payload: SessionDTO) => {
 	try {
 		return jwt.sign(payload, config.auth.token_secret_key, {
-			expiresIn: "30m",
+			expiresIn: config.auth.token_lifetime,
 		});
 	} catch (error) {
 		throw new CustomError(500, "Error generate token");

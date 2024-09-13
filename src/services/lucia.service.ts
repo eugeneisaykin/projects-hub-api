@@ -15,7 +15,7 @@ const adapter = new Mysql2Adapter(pool, {
 });
 
 const lucia = new Lucia(adapter, {
-	sessionExpiresIn: new TimeSpan(2, "w"),
+	sessionExpiresIn: new TimeSpan(config.auth.session_lifetime_hours, "h"),
 	getUserAttributes: attributes => {
 		return {
 			username: attributes.username,
