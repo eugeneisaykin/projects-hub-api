@@ -12,7 +12,7 @@ export async function up(knex: Knex): Promise<void> {
 		if (!exists) {
 			return knex.schema.createTable(tableName, table => {
 				table.string("id").notNullable().unique().primary();
-				table.date("expires_at").notNullable();
+				table.timestamp("expires_at").notNullable();
 				table.json("user_agent").notNullable();
 				table.integer("ip_address").unsigned().notNullable();
 				table
@@ -22,7 +22,6 @@ export async function up(knex: Knex): Promise<void> {
 					.inTable("users")
 					.onDelete("CASCADE");
 				table.timestamp("date_added").defaultTo(knex.fn.now());
-				table.timestamp("date_change").defaultTo(knex.fn.now());
 			});
 		}
 	});
