@@ -1,3 +1,4 @@
+import lucia from "@/services/lucia.service";
 import {
 	generateTokensService,
 	verifyTokenAndGetSessionService,
@@ -23,7 +24,7 @@ const authenticateToken = async (
 		}
 	}
 
-	const token = (req.headers.authorization || "").replace(/Bearer\s?/, "");
+	const token = lucia.readBearerToken(req.headers.authorization ?? "");
 
 	if (!token) {
 		req.user = null;
