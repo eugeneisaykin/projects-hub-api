@@ -4,7 +4,11 @@ import {
 	createSessionAndGetTokenService,
 	deleteSessionsService,
 } from "@/services/sessions.service";
-import { authUserService, createUserService } from "@/services/users.service";
+import {
+	authUserService,
+	createUserService,
+	getAllUsersService,
+} from "@/services/users.service";
 import { userSchema } from "@/validations/users.validation";
 import { NextFunction, Request, Response } from "express";
 import parser from "ua-parser-js";
@@ -98,6 +102,29 @@ export const logoutUserController = async (
 
 		await deleteSessionsService(logoutAllDevices, req.user.id, req.session.id);
 		res.status(200).json({ success: true, message: "Successful Logout" });
+	} catch (error: any) {
+		console.log(error);
+		next(error);
+	}
+};
+
+export const getAllUsersController = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
+	try {
+		if (!req.user || !req.session) {
+			throw new CustomError(403, "Forbidden");
+		}
+
+		const { role } = req.query;
+
+		const allUsers = await getAllUsersService(role as string);
+		res.status(200).json({
+			success: true,
+			allUsers,
+		});
 	} catch (error: any) {
 		console.log(error);
 		next(error);

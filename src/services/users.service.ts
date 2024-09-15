@@ -58,6 +58,22 @@ export const authUserService = async (email: string, password: string) => {
 	return formatUserResponse(userDB, role);
 };
 
+export const getAllUsersService = async (role?: string) => {
+	const query = UserModel.query()
+		.withGraphFetched("roles")
+		.modifyGraph("roles", builder => {
+			builder.select();
+		});
+
+	if (role) {
+		query.joinRelated("roles").where("roles.name", role);
+	}
+
+	return await query.onError(e => {
+		throw new CustomError(500, e.message);
+	});
+};
+
 export const getHashPassword = async (password: string) => {
 	try {
 		return await bcrypt.hash(password, config.auth.saltRounds);
