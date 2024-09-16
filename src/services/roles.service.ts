@@ -3,6 +3,12 @@ import RoleModel from "@/models/roles.model";
 
 let roleCache: Record<string, number> = {};
 
+export const getAllRolesService = async () => {
+	return await RoleModel.query().onError(e => {
+		throw new CustomError(500, e.message);
+	});
+};
+
 export const getRoleIdByName = async (roleName: string) => {
 	if (roleCache[roleName]) return roleCache[roleName];
 

@@ -61,7 +61,7 @@ export const authUserService = async (email: string, password: string) => {
 	return userDB;
 };
 
-const getUserFromDB = async (email: string, username: string = "") => {
+export const getUserFromDB = async (email: string, username: string = "") => {
 	return await UserModel.query()
 		.withGraphFetched("roles")
 		.modifyGraph("roles", builder => {
