@@ -23,7 +23,7 @@ export default class RoleModel extends Model {
 				modelClass: UserModel,
 				join: {
 					from: "roles.id",
-					to: "users.roleId",
+					to: "users.role_id",
 				},
 			},
 		};

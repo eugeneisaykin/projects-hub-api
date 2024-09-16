@@ -2,7 +2,7 @@ import config from "@/config";
 import CustomError from "@/errors/customError";
 import UserModel from "@/models/users.model";
 import bcrypt from "bcrypt";
-import { getRoleIdByName, getRoleNameById } from "./roles.service";
+import { getRoleIdByName } from "./roles.service";
 
 interface UserInfo {
 	username: string;
@@ -36,10 +36,15 @@ export const createUserService = async (userInfo: UserInfo) => {
 			roleId,
 			password: hashPassword,
 		})
+		.withGraphFetched("roles")
+		.modifyGraph("roles", builder => {
+			builder.select();
+		})
 		.onError(e => {
 			throw new CustomError(500, e.message);
 		});
-	return formatUserResponse(user, role);
+
+	return user;
 };
 
 export const authUserService = async (email: string, password: string) => {
@@ -53,9 +58,18 @@ export const authUserService = async (email: string, password: string) => {
 		throw new CustomError(401, "Invalid email or password");
 	}
 
-	const role = String(await getRoleNameById(userDB.roleId));
+	return userDB;
+};
 
-	return formatUserResponse(userDB, role);
+const getUserFromDB = async (email: string, username: string = "") => {
+	return await UserModel.query()
+		.withGraphFetched("roles")
+		.modifyGraph("roles", builder => {
+			builder.select();
+		})
+		.where({ email })
+		.orWhere({ username })
+		.first();
 };
 
 export const getAllUsersService = async (role?: string) => {
@@ -74,7 +88,7 @@ export const getAllUsersService = async (role?: string) => {
 	});
 };
 
-export const getHashPassword = async (password: string) => {
+const getHashPassword = async (password: string) => {
 	try {
 		return await bcrypt.hash(password, config.auth.saltRounds);
 	} catch (error) {
@@ -82,25 +96,10 @@ export const getHashPassword = async (password: string) => {
 	}
 };
 
-export const getDecryptPassword = async (
-	password: string,
-	hashPassword: string
-) => {
+const getDecryptPassword = async (password: string, hashPassword: string) => {
 	try {
 		return await bcrypt.compare(password, hashPassword);
 	} catch (error) {
 		throw new CustomError(500, "Error decoding password");
 	}
-};
-
-export const getUserFromDB = async (email: string, username: string = "") => {
-	return await UserModel.query().where({ email }).orWhere({ username }).first();
-};
-
-const formatUserResponse = (user: any, role: string) => {
-	const result = user.$omitFromJson(["roleId"]).toJSON();
-	return {
-		...result,
-		role,
-	};
 };

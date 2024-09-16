@@ -1,8 +1,6 @@
 import lucia from "@/services/lucia.service";
-import {
-	generateTokensService,
-	verifyTokenAndGetSessionService,
-} from "@/services/sessions.service";
+import { verifySessionService } from "@/services/sessions.service";
+import { generateTokensService } from "@/services/tokens.service";
 import { NextFunction, Request, Response } from "express";
 import type { Session, User } from "lucia";
 import { verifyRequestOrigin } from "lucia";
@@ -33,15 +31,10 @@ const authenticateToken = async (
 	}
 
 	try {
-		const { session, user } = await verifyTokenAndGetSessionService(token);
-
-		const sessionDTO = {
-			id: session.id,
-			userId: session.userId,
-		};
+		const { session, user } = await verifySessionService(token);
 
 		if (session && session.fresh) {
-			const newToken = generateTokensService({ ...sessionDTO });
+			const newToken = generateTokensService(session.id);
 			res.setHeader("Authorization", `Bearer ${newToken}`);
 		}
 

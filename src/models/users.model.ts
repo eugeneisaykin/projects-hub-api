@@ -12,6 +12,7 @@ export default class UserModel extends Model {
 	password!: string;
 	dateAdded!: Date;
 	dateChange!: Date;
+	roles?: RoleModel;
 
 	static get tableName() {
 		return "users";
@@ -27,7 +28,7 @@ export default class UserModel extends Model {
 				relation: Model.BelongsToOneRelation,
 				modelClass: RoleModel,
 				join: {
-					from: "users.roleId",
+					from: "users.role_id",
 					to: "roles.id",
 				},
 			},
@@ -36,7 +37,7 @@ export default class UserModel extends Model {
 				modelClass: SessionModel,
 				join: {
 					from: "users.id",
-					to: "sessions.userId",
+					to: "sessions.user_id",
 				},
 			},
 		};
@@ -45,6 +46,7 @@ export default class UserModel extends Model {
 	$formatJson(json: any) {
 		json = super.$formatJson(json);
 		delete json.password;
+		delete json.roleId;
 		delete json.dateAdded;
 		delete json.dateChange;
 		return json;

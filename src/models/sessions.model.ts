@@ -24,7 +24,7 @@ export default class SessionModel extends Model {
 				relation: Model.BelongsToOneRelation,
 				modelClass: UserModel,
 				join: {
-					from: "sessions.userId",
+					from: "sessions.user_id",
 					to: "users.id",
 				},
 			},

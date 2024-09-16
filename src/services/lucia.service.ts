@@ -1,4 +1,5 @@
 import config from "@/config";
+import RoleModel from "@/models/roles.model";
 import { Mysql2Adapter } from "@lucia-auth/adapter-mysql";
 import { Lucia, TimeSpan } from "lucia";
 import mysql, { Pool } from "mysql2/promise";
@@ -20,7 +21,7 @@ const lucia = new Lucia(adapter, {
 		return {
 			username: attributes.username,
 			email: attributes.email,
-			roleId: attributes.role_id,
+			roles: attributes.roles,
 		};
 	},
 	getSessionAttributes: attributes => {
@@ -48,7 +49,7 @@ interface DatabaseSessionAttributes {
 interface DatabaseUserAttributes {
 	username: string;
 	email: string;
-	role_id: number;
+	roles: RoleModel;
 }
 
 export default lucia;

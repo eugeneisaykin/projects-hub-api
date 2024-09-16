@@ -1,7 +1,6 @@
 import CustomError from "@/errors/customError";
-import { getRoleNameById } from "@/services/roles.service";
 import {
-	createSessionAndGetTokenService,
+	createSessionService,
 	deleteSessionsService,
 } from "@/services/sessions.service";
 import {
@@ -20,10 +19,9 @@ export const createUserController = async (
 ): Promise<void> => {
 	try {
 		const isAdminRole = req.body.role === "admin";
-		const isUserAdmin =
-			req.user && (await getRoleNameById(req.user.roleId)) === "admin";
+		const isUserAdmin = req?.user?.roles.name === "admin";
 
-		if ((!req.user || !req.session) && isAdminRole && !isUserAdmin) {
+		if (!req.session && !isUserAdmin && isAdminRole) {
 			throw new CustomError(403, "Forbidden");
 		}
 
@@ -34,21 +32,18 @@ export const createUserController = async (
 		}
 
 		const clientInfo = {
-			ipAddress: req.ip,
+			ipAddress: req.ip || "127.0.0.1",
 			userAgent: parser(req.headers["user-agent"]),
 		};
 
 		const userInfo = await createUserService(value);
 
-		if (userInfo.role === "admin") {
+		if (userInfo?.roles?.name === "admin") {
 			res
 				.status(201)
 				.json({ success: true, message: "Admin created", userInfo });
 		} else {
-			const sessionToken = await createSessionAndGetTokenService(
-				userInfo,
-				clientInfo
-			);
+			const sessionToken = await createSessionService(userInfo.id, clientInfo);
 			res.status(201).json({
 				success: true,
 				message: "User created",
@@ -70,16 +65,13 @@ export const authUserController = async (
 	try {
 		const { email, password } = req.body;
 		const clientInfo = {
-			ipAddress: req.ip,
+			ipAddress: req.ip || "127.0.0.1",
 			userAgent: parser(req.headers["user-agent"]),
 		};
 
 		const userInfo = await authUserService(email, password);
 
-		const sessionToken = await createSessionAndGetTokenService(
-			userInfo,
-			clientInfo
-		);
+		const sessionToken = await createSessionService(userInfo.id, clientInfo);
 		res
 			.status(201)
 			.json({ success: true, message: "User auth", userInfo, sessionToken });
