@@ -1,11 +1,13 @@
+import config from "@/config";
 import lucia from "@/services/lucia.service";
+import { getRoleInfo } from "@/services/roles.service";
 import { verifySessionService } from "@/services/sessions.service";
 import { generateTokensService } from "@/services/tokens.service";
 import { NextFunction, Request, Response } from "express";
 import type { Session, User } from "lucia";
 import { verifyRequestOrigin } from "lucia";
 
-const authenticateToken = async (
+export const authenticateToken = async (
 	req: Request,
 	res: Response,
 	next: NextFunction
@@ -55,6 +57,29 @@ const authenticateToken = async (
 	}
 };
 
+export const checkPermissions = (requiredPermission: string) => {
+	return async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			if (!req.user || !req.session) {
+				return res
+					.status(401)
+					.json({ success: false, message: "Unauthorized" });
+			}
+			const roleInfo = await getRoleInfo(Number(req.user?.roleId));
+			const userRole = roleInfo.name;
+
+			const permissions = config.rolePermissions[userRole] || [];
+
+			if (permissions.includes(requiredPermission)) {
+				return next();
+			}
+			return res.status(403).json({ success: false, message: "Access denied" });
+		} catch (error) {
+			return res.status(403).json({ success: false, message: "Access denied" });
+		}
+	};
+};
+
 declare global {
 	namespace Express {
 		interface Request {
@@ -63,5 +88,3 @@ declare global {
 		}
 	}
 }
-
-export default authenticateToken;

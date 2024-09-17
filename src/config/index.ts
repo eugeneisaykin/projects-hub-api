@@ -1,6 +1,16 @@
 import * as dotenv from "dotenv";
 dotenv.config();
 
+interface RolePermissions {
+	[key: string]: string[];
+}
+
+const rolePermissions: RolePermissions = {
+	admin: ["GET /users", "PATCH /update-role", "GET /roles"],
+	lead: [],
+	programmer: [],
+};
+
 export default {
 	port: process.env.PORT || 4444,
 	database: {
@@ -22,4 +32,8 @@ export default {
 		cleanupSessionInterval:
 			process.env.CRON_CLEANUP_SESSION_INTERVAL || "0 * * * *",
 	},
+	defaultUserInfo: {
+		role: "programmer",
+	},
+	rolePermissions,
 };

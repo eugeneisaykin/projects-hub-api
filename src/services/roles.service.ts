@@ -1,20 +1,30 @@
 import CustomError from "@/errors/customError";
 import RoleModel from "@/models/roles.model";
 
-let roleCache: Record<string, number> = {};
-
 export const getAllRolesService = async () => {
 	return await RoleModel.query().onError(e => {
 		throw new CustomError(500, e.message);
 	});
 };
 
-export const getRoleIdByName = async (roleName: string) => {
-	if (roleCache[roleName]) return roleCache[roleName];
+export const getRoleInfo = async (identifier: number | string) => {
+	try {
+		let role;
 
-	const role = await RoleModel.query().findOne({ name: roleName });
-	if (!role) throw new CustomError(404, `Role not found: ${roleName}`);
+		if (typeof identifier === "number") {
+			role = await RoleModel.query().findById(identifier);
+		} else if (typeof identifier === "string") {
+			role = await RoleModel.query().findOne({ name: identifier });
+		} else {
+			throw new CustomError(400, "Invalid identifier type");
+		}
 
-	roleCache[roleName] = role.id;
-	return role.id;
+		if (!role) {
+			throw new CustomError(404, `Role not found: ${identifier}`);
+		}
+
+		return role;
+	} catch (error: any) {
+		throw new CustomError(500, error.message);
+	}
 };

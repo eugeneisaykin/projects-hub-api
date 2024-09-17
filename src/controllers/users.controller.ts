@@ -7,6 +7,7 @@ import {
 	authUserService,
 	createUserService,
 	getAllUsersService,
+	updateUserRoleService,
 } from "@/services/users.service";
 import { userSchema } from "@/validations/users.validation";
 import { NextFunction, Request, Response } from "express";
@@ -18,13 +19,6 @@ export const createUserController = async (
 	next: NextFunction
 ): Promise<void> => {
 	try {
-		const isAdminRole = req.body.role === "admin";
-		const isUserAdmin = req?.user?.roles.name === "admin";
-
-		if (!req.session && !isUserAdmin && isAdminRole) {
-			throw new CustomError(403, "Forbidden");
-		}
-
 		const { error, value } = userSchema.validate(req.body);
 		if (error) {
 			const errorMessages = error.details.map(detail => detail.message);
@@ -38,19 +32,13 @@ export const createUserController = async (
 
 		const userInfo = await createUserService(value);
 
-		if (userInfo?.roles?.name === "admin") {
-			res
-				.status(201)
-				.json({ success: true, message: "Admin created", userInfo });
-		} else {
-			const sessionToken = await createSessionService(userInfo.id, clientInfo);
-			res.status(201).json({
-				success: true,
-				message: "User created",
-				userInfo,
-				sessionToken,
-			});
-		}
+		const sessionToken = await createSessionService(userInfo.id, clientInfo);
+		res.status(201).json({
+			success: true,
+			message: "User created",
+			userInfo,
+			sessionToken,
+		});
 	} catch (error: any) {
 		console.log(error);
 		next(error);
@@ -88,8 +76,9 @@ export const logoutUserController = async (
 ): Promise<void> => {
 	try {
 		if (!req.user || !req.session) {
-			throw new CustomError(403, "Forbidden");
+			throw new CustomError(401, "Unauthorized");
 		}
+
 		const { logoutAllDevices = false } = req.body;
 
 		await deleteSessionsService(logoutAllDevices, req.user.id, req.session.id);
@@ -107,7 +96,7 @@ export const getAllUsersController = async (
 ) => {
 	try {
 		if (!req.user || !req.session) {
-			throw new CustomError(403, "Forbidden");
+			throw new CustomError(401, "Unauthorized");
 		}
 
 		const { role } = req.query;
@@ -116,6 +105,37 @@ export const getAllUsersController = async (
 		res.status(200).json({
 			success: true,
 			allUsers,
+		});
+	} catch (error: any) {
+		console.log(error);
+		next(error);
+	}
+};
+
+export const updateUserRoleController = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+): Promise<void> => {
+	try {
+		if (!req.user || !req.session) {
+			throw new CustomError(401, "Unauthorized");
+		}
+
+		const { userId } = req.params;
+
+		if (!userId) {
+			throw new CustomError(400, "User ID is required");
+		}
+
+		const { newRole } = req.body;
+
+		const updatedUserInfo = await updateUserRoleService(+userId, newRole);
+
+		res.status(200).json({
+			success: true,
+			message: `Role updated to ${newRole}`,
+			updatedUserInfo,
 		});
 	} catch (error: any) {
 		console.log(error);

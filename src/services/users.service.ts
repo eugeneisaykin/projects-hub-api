@@ -2,7 +2,7 @@ import config from "@/config";
 import CustomError from "@/errors/customError";
 import UserModel from "@/models/users.model";
 import bcrypt from "bcrypt";
-import { getRoleIdByName } from "./roles.service";
+import { getRoleInfo } from "./roles.service";
 
 interface UserInfo {
 	username: string;
@@ -14,7 +14,7 @@ interface UserInfo {
 }
 
 export const createUserService = async (userInfo: UserInfo) => {
-	const { username, firstName, lastName, email, role, password } = userInfo;
+	const { username, firstName, lastName, email, password } = userInfo;
 
 	const userDB = await getUserFromDB(email, username);
 	if (userDB) {
@@ -25,7 +25,7 @@ export const createUserService = async (userInfo: UserInfo) => {
 	}
 
 	const hashPassword = await getHashPassword(password);
-	const roleId = +(await getRoleIdByName(role));
+	const roleInfo = await getRoleInfo(config.defaultUserInfo.role);
 
 	const user = await UserModel.query()
 		.insertAndFetch({
@@ -33,7 +33,7 @@ export const createUserService = async (userInfo: UserInfo) => {
 			firstName,
 			lastName,
 			email,
-			roleId,
+			roleId: roleInfo.id,
 			password: hashPassword,
 		})
 		.withGraphFetched("roles")
@@ -86,6 +86,38 @@ export const getAllUsersService = async (role?: string) => {
 	return await query.onError(e => {
 		throw new CustomError(500, e.message);
 	});
+};
+
+export const updateUserRoleService = async (
+	userId: number,
+	newRole: string
+) => {
+	const userToUpdate = await UserModel.query()
+		.findById(userId)
+		.withGraphFetched("roles")
+		.modifyGraph("roles", builder => {
+			builder.select();
+		});
+
+	if (!userToUpdate) {
+		throw new CustomError(404, "User not found");
+	}
+
+	if (userToUpdate?.roles?.name === "admin") {
+		throw new CustomError(403, "You cannot change the role of another admin");
+	}
+
+	const newRoleInfo = await getRoleInfo(newRole);
+
+	if (!newRoleInfo) {
+		throw new CustomError(400, "Invalid role");
+	}
+
+	const updatedUser = await UserModel.query()
+		.patchAndFetchById(userId, { roleId: newRoleInfo.id })
+		.withGraphFetched("roles");
+
+	return updatedUser;
 };
 
 const getHashPassword = async (password: string) => {

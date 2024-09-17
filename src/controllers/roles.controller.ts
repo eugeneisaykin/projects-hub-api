@@ -1,6 +1,5 @@
 import CustomError from "@/errors/customError";
 import { getAllRolesService } from "@/services/roles.service";
-import { getUserFromDB } from "@/services/users.service";
 import { NextFunction, Request, Response } from "express";
 
 export const getAllRolesController = async (
@@ -9,11 +8,8 @@ export const getAllRolesController = async (
 	next: NextFunction
 ) => {
 	try {
-		const userInfo = await getUserFromDB(req?.user?.email as string);
-		const isUserAdmin = userInfo?.roles?.name === "admin";
-
-		if (!req.session && !isUserAdmin) {
-			throw new CustomError(403, "Forbidden");
+		if (!req.session || !req.user) {
+			throw new CustomError(401, "Unauthorized");
 		}
 
 		const allRoles = await getAllRolesService();

@@ -30,9 +30,4 @@ export const userSchema = Joi.object({
 			"string.pattern.base":
 				"The password must contain at least one lowercase letter, one digit and consist of at least 6 characters",
 		}),
-	role: Joi.string().min(3).max(30).required().messages({
-		"string.empty": "Role is required",
-		"string.min": "Role name must be at least 3 characters long",
-		"string.max": "Role name must not exceed 30 characters",
-	}),
 });
