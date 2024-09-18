@@ -104,6 +104,7 @@ export const getAllUsersController = async (
 		const allUsers = await getAllUsersService(role as string);
 		res.status(200).json({
 			success: true,
+			size: allUsers.length,
 			allUsers,
 		});
 	} catch (error: any) {

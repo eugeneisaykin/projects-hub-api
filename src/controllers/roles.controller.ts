@@ -15,6 +15,7 @@ export const getAllRolesController = async (
 		const allRoles = await getAllRolesService();
 		res.status(200).json({
 			success: true,
+			size: allRoles.length,
 			allRoles,
 		});
 	} catch (error: any) {
