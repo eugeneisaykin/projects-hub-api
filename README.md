@@ -110,7 +110,7 @@ projects-hub-api/
 
 #### 4. Get All Users
 
-- GET /api/users
+- GET /api/users/all
 - Query Params: filtering by role
 
 #### 5. Update User Role
@@ -123,7 +123,7 @@ projects-hub-api/
   }
   ```
 
-#### 5. Delete User
+#### 6. Delete User
 
 - DELETE /api/users/userId
 - Request Body:
@@ -148,7 +148,29 @@ projects-hub-api/
 
 #### 3. Get All Roles
 
-- GET /api/roles
+- GET /api/roles/all
+
+### Statuses:
+
+#### 1. Create Status
+
+- POST /api/statuses/create
+- Request Body:
+
+  ```
+  {
+      "name": "test",
+      "description": "test" //optional
+  }
+  ```
+
+#### 2. Delete Status
+
+- DELETE /api/status/statusId
+
+#### 3. Get All Statuses
+
+- GET /api/statuses/all
 
 ## Technologies Used
 
