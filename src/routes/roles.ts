@@ -13,7 +13,7 @@ router.post(
 	checkPermissions("role POST /create"),
 	createRoleController
 );
-router.get("", checkPermissions("role GET /roles"), getAllRolesController);
+router.get("/all", checkPermissions("role GET /all"), getAllRolesController);
 router.delete(
 	"/:roleId",
 	checkPermissions("role DELETE"),

@@ -7,14 +7,14 @@ interface RolePermissions {
 
 const rolePermissions: RolePermissions = {
 	admin: [
-		"user GET /users",
+		"user GET /all",
 		"user PATCH /update-role",
 		"user DELETE",
 		"role POST /create",
-		"role GET /roles",
+		"role GET /all",
 		"role DELETE",
 		"status POST /create",
-		"status GET /statuses",
+		"status GET /all",
 		"status DELETE",
 	],
 	lead: [],

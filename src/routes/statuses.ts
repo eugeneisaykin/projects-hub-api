@@ -14,8 +14,8 @@ router.post(
 	createStatusController
 );
 router.get(
-	"",
-	checkPermissions("status GET /statuses"),
+	"/all",
+	checkPermissions("status GET /all"),
 	getAllStatusesController
 );
 router.delete(

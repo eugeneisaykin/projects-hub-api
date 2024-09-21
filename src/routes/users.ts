@@ -14,7 +14,7 @@ const router = express.Router();
 router.post("/registration", createUserController);
 router.post("/authentication", authUserController);
 router.post("/logout", logoutUserController);
-router.get("", checkPermissions("user GET /users"), getAllUsersController);
+router.get("/all", checkPermissions("user GET /all"), getAllUsersController);
 router.patch(
 	"/:userId/update-role",
 	checkPermissions("user PATCH /update-role"),
