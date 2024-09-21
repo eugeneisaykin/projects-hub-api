@@ -1,6 +1,7 @@
 import {
 	authUserController,
 	createUserController,
+	deleteUserController,
 	getAllUsersController,
 	logoutUserController,
 	updateUserRoleController,
@@ -13,11 +14,16 @@ const router = express.Router();
 router.post("/registration", createUserController);
 router.post("/authentication", authUserController);
 router.post("/logout", logoutUserController);
-router.get("", checkPermissions("GET /users"), getAllUsersController);
+router.get("", checkPermissions("user GET /users"), getAllUsersController);
 router.patch(
 	"/:userId/update-role",
-	checkPermissions("PATCH user /update-role"),
+	checkPermissions("user PATCH /update-role"),
 	updateUserRoleController
+);
+router.delete(
+	"/:userId",
+	checkPermissions("user DELETE"),
+	deleteUserController
 );
 
 export default router;

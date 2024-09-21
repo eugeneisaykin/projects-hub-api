@@ -6,6 +6,7 @@ import {
 import {
 	authUserService,
 	createUserService,
+	deleteUserService,
 	getAllUsersService,
 	updateUserRoleService,
 } from "@/services/users.service";
@@ -95,10 +96,6 @@ export const getAllUsersController = async (
 	next: NextFunction
 ) => {
 	try {
-		if (!req.user || !req.session) {
-			throw new CustomError(401, "Unauthorized");
-		}
-
 		const { role } = req.query;
 
 		const allUsers = await getAllUsersService(role as string);
@@ -119,10 +116,6 @@ export const updateUserRoleController = async (
 	next: NextFunction
 ): Promise<void> => {
 	try {
-		if (!req.user || !req.session) {
-			throw new CustomError(401, "Unauthorized");
-		}
-
 		const { userId } = req.params;
 
 		if (!userId) {
@@ -137,6 +130,30 @@ export const updateUserRoleController = async (
 			success: true,
 			message: `Role updated to ${newRole}`,
 			updatedUserInfo,
+		});
+	} catch (error: any) {
+		console.log(error);
+		next(error);
+	}
+};
+
+export const deleteUserController = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+): Promise<void> => {
+	try {
+		const { userId } = req.params;
+
+		if (!userId) {
+			throw new CustomError(400, "User ID is required");
+		}
+
+		await deleteUserService(+userId);
+
+		res.status(200).json({
+			success: true,
+			message: `Deleted a user with an ID ${userId}`,
 		});
 	} catch (error: any) {
 		console.log(error);

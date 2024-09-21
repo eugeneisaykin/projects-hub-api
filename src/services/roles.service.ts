@@ -26,6 +26,24 @@ export const createRoleService = async (userInfo: RoleInfo) => {
 	return role;
 };
 
+export const deleteRoleService = async (roleId: number) => {
+	const roleInfo = await getRoleInfo(roleId);
+
+	if (!roleInfo) {
+		throw new CustomError(404, "Role not found");
+	}
+
+	if (roleInfo?.name === "admin") {
+		throw new CustomError(403, "You cannot delete the administrator role");
+	}
+
+	await RoleModel.query()
+		.deleteById(roleId)
+		.onError(e => {
+			throw new CustomError(500, e.message);
+		});
+};
+
 export const getAllRolesService = async () => {
 	return await RoleModel.query().onError(e => {
 		throw new CustomError(500, e.message);

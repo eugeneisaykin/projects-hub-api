@@ -123,6 +123,29 @@ export const updateUserRoleService = async (
 	return updatedUser;
 };
 
+export const deleteUserService = async (userId: number) => {
+	const userToDelete = await UserModel.query()
+		.findById(userId)
+		.withGraphFetched("roles")
+		.modifyGraph("roles", builder => {
+			builder.select();
+		});
+
+	if (!userToDelete) {
+		throw new CustomError(404, "User not found");
+	}
+
+	if (userToDelete?.roles?.name === "admin") {
+		throw new CustomError(403, "You cannot change the role of another admin");
+	}
+
+	await UserModel.query()
+		.deleteById(userId)
+		.onError(e => {
+			throw new CustomError(500, e.message);
+		});
+};
+
 const getHashPassword = async (password: string) => {
 	try {
 		return await bcrypt.hash(password, config.auth.saltRounds);
