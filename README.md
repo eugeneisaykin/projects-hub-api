@@ -104,7 +104,7 @@ projects-hub-api/
 - Request Body:
   ```
   {
-      "logoutAllDevices": true
+      "logoutAllDevices": true //optional
   }
   ```
 
@@ -115,7 +115,7 @@ projects-hub-api/
 
 #### 5. Update User Role
 
-- PATCH /api/users/:userId/update-role
+- PATCH /api/users/userId/update-role
 - Request Body:
   ```
   {
@@ -123,9 +123,30 @@ projects-hub-api/
   }
   ```
 
+#### 5. Delete User
+
+- DELETE /api/users/userId
+- Request Body:
+
 ### Roles:
 
-#### 1. Get All Roles
+#### 1. Create Role
+
+- POST /api/roles/create
+- Request Body:
+
+  ```
+  {
+      "name": "test",
+      "description": "test" //optional
+  }
+  ```
+
+#### 2. Delete Role
+
+- DELETE /api/roles/roleId
+
+#### 3. Get All Roles
 
 - GET /api/roles
 
