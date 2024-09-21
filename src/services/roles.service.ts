@@ -6,8 +6,8 @@ interface RoleInfo {
 	description: string;
 }
 
-export const createRoleService = async (userInfo: RoleInfo) => {
-	const { name, description } = userInfo;
+export const createRoleService = async (roleInfo: RoleInfo) => {
+	const { name, description } = roleInfo;
 
 	const roleDB = await getRoleInfo(name);
 	if (roleDB) {
