@@ -10,7 +10,6 @@ interface UserInfo {
 	lastName: string;
 	email: string;
 	password: string;
-	role: string;
 }
 
 export const createUserService = async (userInfo: UserInfo) => {
@@ -26,6 +25,10 @@ export const createUserService = async (userInfo: UserInfo) => {
 
 	const hashPassword = await getHashPassword(password);
 	const roleInfo = await getRoleInfo(config.defaultUserInfo.role);
+
+	if (!roleInfo) {
+		throw new CustomError(404, "Role not found");
+	}
 
 	const user = await UserModel.query()
 		.insertAndFetch({

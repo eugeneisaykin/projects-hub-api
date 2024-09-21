@@ -66,6 +66,13 @@ export const checkPermissions = (requiredPermission: string) => {
 					.json({ success: false, message: "Unauthorized" });
 			}
 			const roleInfo = await getRoleInfo(Number(req.user?.roleId));
+
+			if (!roleInfo) {
+				return res
+					.status(404)
+					.json({ success: false, message: "Role not found" });
+			}
+
 			const userRole = roleInfo.name;
 
 			const permissions = config.rolePermissions[userRole] || [];

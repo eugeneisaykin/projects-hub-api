@@ -16,7 +16,7 @@ router.post("/logout", logoutUserController);
 router.get("", checkPermissions("GET /users"), getAllUsersController);
 router.patch(
 	"/:userId/update-role",
-	checkPermissions("PATCH /update-role"),
+	checkPermissions("PATCH user /update-role"),
 	updateUserRoleController
 );
 
