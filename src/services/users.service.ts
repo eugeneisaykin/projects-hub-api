@@ -146,6 +146,22 @@ export const deleteUserService = async (userId: number) => {
 		});
 };
 
+export const updateUserService = async (userId: string, newUserValue: any) => {
+	if (newUserValue.password) {
+		newUserValue.password = await getHashPassword(newUserValue.password);
+	}
+	const updatedUser = await UserModel.query()
+		.patchAndFetchById(userId, newUserValue)
+		.withGraphFetched("roles")
+		.modifyGraph("roles", builder => {
+			builder.select();
+		})
+		.onError(e => {
+			throw new CustomError(500, e.message);
+		});
+	return updatedUser;
+};
+
 const getHashPassword = async (password: string) => {
 	try {
 		return await bcrypt.hash(password, config.auth.saltRounds);

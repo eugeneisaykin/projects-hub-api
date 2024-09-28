@@ -4,6 +4,7 @@ import {
 	deleteUserController,
 	getAllUsersController,
 	logoutUserController,
+	updateUserController,
 	updateUserRoleController,
 } from "@/controllers/users.controller";
 import { checkPermissions } from "@/middleware/auth";
@@ -20,6 +21,7 @@ router.patch(
 	checkPermissions("user PATCH /update-role"),
 	updateUserRoleController
 );
+router.patch("/update", updateUserController);
 router.delete(
 	"/:userId",
 	checkPermissions("user DELETE"),

@@ -9,6 +9,7 @@ import {
 	deleteUserService,
 	getAllUsersService,
 	updateUserRoleService,
+	updateUserService,
 } from "@/services/users.service";
 import {
 	userRoleFilterSchema,
@@ -18,6 +19,7 @@ import {
 	authUserSchema,
 	createUserSchema,
 	logoutUserSchema,
+	updateUserSchema,
 } from "@/validations/users.validation";
 import { NextFunction, Request, Response } from "express";
 import parser from "ua-parser-js";
@@ -187,6 +189,37 @@ export const deleteUserController = async (
 		res.status(200).json({
 			success: true,
 			message: `Deleted a user with an ID ${userId}`,
+		});
+	} catch (error: any) {
+		console.log(error);
+		next(error);
+	}
+};
+
+export const updateUserController = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+): Promise<void> => {
+	try {
+		if (!req.user || !req.session) {
+			throw new CustomError(401, "Unauthorized");
+		}
+
+		const { error, value } = updateUserSchema.validate(req.body, {
+			abortEarly: false,
+		});
+		if (error) {
+			const errorMessages = error.details.map(detail => detail.message);
+			throw new CustomError(400, errorMessages.join(", "));
+		}
+
+		const updatedUserInfo = await updateUserService(req.user.id, value);
+		res.status(201).json({
+			success: true,
+			message: "User Update",
+			update: Object.keys(value),
+			updatedUserInfo,
 		});
 	} catch (error: any) {
 		console.log(error);
