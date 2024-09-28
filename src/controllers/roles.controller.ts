@@ -4,7 +4,7 @@ import {
 	deleteRoleService,
 	getAllRolesService,
 } from "@/services/roles.service";
-import { roleSchema } from "@/validations/roles.validation";
+import { createRoleSchema } from "@/validations/roles.validation";
 import { NextFunction, Request, Response } from "express";
 
 export const createRoleController = async (
@@ -13,7 +13,7 @@ export const createRoleController = async (
 	next: NextFunction
 ) => {
 	try {
-		const { error, value } = roleSchema.validate(req.body);
+		const { error, value } = createRoleSchema.validate(req.body);
 		if (error) {
 			const errorMessages = error.details.map(detail => detail.message);
 			throw new CustomError(400, errorMessages.join(", "));

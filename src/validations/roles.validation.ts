@@ -1,13 +1,34 @@
 import Joi from "joi";
 
-export const roleSchema = Joi.object({
-	name: Joi.string().min(3).max(30).required().messages({
-		"string.empty": "Name is required",
-		"string.min": "Name must be at least 3 characters long",
-		"string.max": "Name must not exceed 30 characters",
+const stringSchema = Joi.string()
+	.trim()
+	.min(2)
+	.max(30)
+	.pattern(/^[A-Za-z]+$/)
+	.messages({
+		"string.min": "{{#label}} must be at least 2 characters long",
+		"string.max": "{{#label}} must not exceed 30 characters",
+		"string.pattern.base": "{{#label}} should contain only letters",
+	});
+
+export const createRoleSchema = Joi.object({
+	name: stringSchema.required().messages({
+		"string.empty": "{{#label}} is required",
 	}),
-	description: Joi.string().min(3).max(50).messages({
-		"string.min": "Description must be at least 3 character long",
-		"string.max": "Description must not exceed 50 characters",
+	description: stringSchema.optional(),
+});
+
+export const updateRoleSchema = Joi.object({
+	name: stringSchema.optional(),
+	description: stringSchema.optional(),
+}).min(1);
+
+export const userRoleSchema = Joi.object({
+	newRole: stringSchema.required().messages({
+		"string.empty": "{{#label}} is required",
 	}),
+});
+
+export const userRoleFilterSchema = Joi.object({
+	role: stringSchema,
 });

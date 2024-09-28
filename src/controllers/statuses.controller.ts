@@ -4,7 +4,7 @@ import {
 	deleteStatusService,
 	getAllStatusesService,
 } from "@/services/statuses.service";
-import { statusSchema } from "@/validations/statuses.validation";
+import { createStatusSchema } from "@/validations/statuses.validation";
 import { NextFunction, Request, Response } from "express";
 
 export const createStatusController = async (
@@ -13,7 +13,7 @@ export const createStatusController = async (
 	next: NextFunction
 ) => {
 	try {
-		const { error, value } = statusSchema.validate(req.body);
+		const { error, value } = createStatusSchema.validate(req.body);
 		if (error) {
 			const errorMessages = error.details.map(detail => detail.message);
 			throw new CustomError(400, errorMessages.join(", "));

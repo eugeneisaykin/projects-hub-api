@@ -10,7 +10,15 @@ import {
 	getAllUsersService,
 	updateUserRoleService,
 } from "@/services/users.service";
-import { userSchema } from "@/validations/users.validation";
+import {
+	userRoleFilterSchema,
+	userRoleSchema,
+} from "@/validations/roles.validation";
+import {
+	authUserSchema,
+	createUserSchema,
+	logoutUserSchema,
+} from "@/validations/users.validation";
 import { NextFunction, Request, Response } from "express";
 import parser from "ua-parser-js";
 
@@ -20,7 +28,9 @@ export const createUserController = async (
 	next: NextFunction
 ): Promise<void> => {
 	try {
-		const { error, value } = userSchema.validate(req.body);
+		const { error, value } = createUserSchema.validate(req.body, {
+			abortEarly: false,
+		});
 		if (error) {
 			const errorMessages = error.details.map(detail => detail.message);
 			throw new CustomError(400, errorMessages.join(", "));
@@ -52,6 +62,14 @@ export const authUserController = async (
 	next: NextFunction
 ): Promise<void> => {
 	try {
+		const { error } = authUserSchema.validate(req.body, {
+			abortEarly: false,
+		});
+		if (error) {
+			const errorMessages = error.details.map(detail => detail.message);
+			throw new CustomError(400, errorMessages.join(", "));
+		}
+
 		const { email, password } = req.body;
 		const clientInfo = {
 			ipAddress: req.ip || "127.0.0.1",
@@ -80,6 +98,11 @@ export const logoutUserController = async (
 			throw new CustomError(401, "Unauthorized");
 		}
 
+		const { error } = logoutUserSchema.validate(req.body);
+		if (error) {
+			throw new CustomError(400, error.details[0].message);
+		}
+
 		const { logoutAllDevices = false } = req.body;
 
 		await deleteSessionsService(logoutAllDevices, req.user.id, req.session.id);
@@ -97,6 +120,11 @@ export const getAllUsersController = async (
 ) => {
 	try {
 		const { role } = req.query;
+
+		const { error } = userRoleFilterSchema.validate(req.query);
+		if (error) {
+			throw new CustomError(400, error.details[0].message);
+		}
 
 		const allUsers = await getAllUsersService(role as string);
 		res.status(200).json({
@@ -120,6 +148,11 @@ export const updateUserRoleController = async (
 
 		if (!userId) {
 			throw new CustomError(400, "User ID is required");
+		}
+
+		const { error } = userRoleSchema.validate(req.body);
+		if (error) {
+			throw new CustomError(400, error.details[0].message);
 		}
 
 		const { newRole } = req.body;

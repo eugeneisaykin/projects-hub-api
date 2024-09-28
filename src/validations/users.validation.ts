@@ -1,33 +1,73 @@
 import Joi from "joi";
 
-export const userSchema = Joi.object({
-	username: Joi.string().min(3).max(30).required().messages({
-		"string.empty": "Username is required",
-		"string.min": "Username must be at least 3 characters long",
-		"string.max": "Username must not exceed 30 characters",
+const usernameSchema = Joi.string().trim().alphanum().min(3).max(30).messages({
+	"string.min": "{{#label}} must be at least 3 characters long",
+	"string.max": "{{#label}} must not exceed 30 characters",
+	"string.alphanum":
+		"Requires the {{#label}} value to only contain a-z, A-Z, and 0-9",
+});
+
+const stringSchema = Joi.string()
+	.trim()
+	.min(2)
+	.max(50)
+	.pattern(/^[A-Za-z]+$/)
+	.messages({
+		"string.min": "{{#label}} must be at least 2 characters long",
+		"string.max": "{{#label}} must not exceed 50 characters",
+		"string.pattern.base": "{{#label}} should contain only letters",
+	});
+
+const emailSchema = Joi.string().email().messages({
+	"string.email": "Invalid {{#label}} format",
+});
+
+const passwordSchema = Joi.string()
+	.min(6)
+	.pattern(/^(?=.*[a-z])(?=.*[\d\s\W]).{6,50}$/)
+	.messages({
+		"string.min": "{{#label}} must be at least 6 characters long",
+		"string.pattern.base":
+			"{{#label}} must contain at least one lowercase letter, one digit, and consist of at least 6 characters",
+	});
+
+export const createUserSchema = Joi.object({
+	username: usernameSchema.required().messages({
+		"string.empty": "{{#label}} is required",
 	}),
-	firstName: Joi.string().min(2).max(50).required().messages({
-		"string.empty": "First name is required",
-		"string.min": "First name must be at least 1 character long",
-		"string.max": "First name must not exceed 50 characters",
+	firstName: stringSchema.required().messages({
+		"string.empty": "{{#label}} is required",
 	}),
-	lastName: Joi.string().min(2).max(50).required().messages({
-		"string.empty": "Last name is required",
-		"string.min": "Last name must be at least 1 character long",
-		"string.max": "Last name must not exceed 50 characters",
+	lastName: stringSchema.required().messages({
+		"string.empty": "{{#label}} is required",
 	}),
-	email: Joi.string().email().required().messages({
-		"string.empty": "Email is required",
-		"string.email": "Invalid email format",
+	email: emailSchema.required().messages({
+		"string.empty": "{{#label}} is required",
 	}),
-	password: Joi.string()
-		.min(6)
-		.pattern(/^(?=.*[a-z])(?=.*[\d\s\W]).{6,50}$/)
-		.required()
-		.messages({
-			"string.empty": "Password is required",
-			"string.min": "Password must be at least 6 characters long",
-			"string.pattern.base":
-				"The password must contain at least one lowercase letter, one digit and consist of at least 6 characters",
-		}),
+	password: passwordSchema.required().messages({
+		"string.empty": "{{#label}} is required",
+	}),
+});
+
+export const authUserSchema = Joi.object({
+	email: emailSchema.required().messages({
+		"string.empty": "{{#label}} is required",
+	}),
+	password: Joi.string().required().messages({
+		"string.empty": "{{#label}} is required",
+	}),
+});
+
+export const updateUserSchema = Joi.object({
+	username: usernameSchema.optional(),
+	firstName: stringSchema.optional(),
+	lastName: stringSchema.optional(),
+	email: emailSchema.optional(),
+	password: passwordSchema.optional(),
+}).min(1);
+
+export const logoutUserSchema = Joi.object({
+	logoutAllDevices: Joi.boolean().messages({
+		"boolean.base": "{{#label}} must be a boolean value",
+	}),
 });
