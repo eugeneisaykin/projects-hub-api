@@ -5,25 +5,12 @@ import { verifySessionService } from "@/services/sessions.service";
 import { generateTokensService } from "@/services/tokens.service";
 import { NextFunction, Request, Response } from "express";
 import type { Session, User } from "lucia";
-import { verifyRequestOrigin } from "lucia";
 
 export const authenticateToken = async (
 	req: Request,
 	res: Response,
 	next: NextFunction
 ) => {
-	if (req.method !== "GET") {
-		const originHeader = req.get("Origin") ?? null;
-		const hostHeader = req.get("Host") ?? null;
-		if (
-			!originHeader ||
-			!hostHeader ||
-			!verifyRequestOrigin(originHeader, [hostHeader])
-		) {
-			return res.status(403).json({ success: false, message: "Forbidden" });
-		}
-	}
-
 	const token = lucia.readBearerToken(req.headers.authorization ?? "");
 
 	if (!token) {
