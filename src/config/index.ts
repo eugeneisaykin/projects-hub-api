@@ -16,6 +16,7 @@ const rolePermissions: RolePermissions = {
 		"status POST /create",
 		"status GET /all",
 		"status DELETE",
+		"task POST /create",
 	],
 	lead: [],
 	programmer: [],

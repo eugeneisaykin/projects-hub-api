@@ -1,4 +1,5 @@
 import { Model, snakeCaseMappers } from "objection";
+import TaskModel from "./tasks.model";
 
 export default class StatusModel extends Model {
 	id!: number;
@@ -13,6 +14,19 @@ export default class StatusModel extends Model {
 
 	static get columnNameMappers() {
 		return snakeCaseMappers();
+	}
+
+	static get relationMappings() {
+		return {
+			tasks: {
+				relation: Model.HasManyRelation,
+				modelClass: TaskModel,
+				join: {
+					from: "statuses.id",
+					to: "tasks.status_id",
+				},
+			},
+		};
 	}
 
 	$formatJson(json: any) {
