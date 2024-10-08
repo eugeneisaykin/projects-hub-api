@@ -30,7 +30,13 @@ export async function up(knex: Knex): Promise<void> {
 					.inTable("projects")
 					.onDelete("SET NULL");
 				table
-					.integer("user_id")
+					.integer("assignee_id")
+					.unsigned()
+					.references("id")
+					.inTable("users")
+					.onDelete("SET NULL");
+				table
+					.integer("reviewer_id")
 					.unsigned()
 					.references("id")
 					.inTable("users")
