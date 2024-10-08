@@ -14,8 +14,8 @@ export async function up(knex: Knex): Promise<void> {
 				table.increments("id").primary();
 				table.string("name").notNullable();
 				table.text("description").nullable();
-				table.date("start_date").notNullable();
-				table.date("end_date").nullable();
+				table.timestamp("start_date").nullable();
+				table.timestamp("end_date").nullable();
 				table.enum("priority", ["low", "medium", "high"]).defaultTo("medium");
 				table
 					.integer("status_id")
